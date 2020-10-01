@@ -1,0 +1,38 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+    {
+      "label": "Run Server",
+      "dependsOn": [
+        "Front-end server",
+        "Back-end server",
+        "Cron-server"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Front-end server",
+      "type": "shell",
+      "command": "cd .. && cd Front-end && npm start",
+      "presentation": {
+        "group": "Servers"
+      }
+    },
+    {
+      "label": "Back-end server",
+      "type": "shell",
+      "command": "nodemon server",
+      "presentation": {
+        "group": "Servers"
+      }
+    },
+    {
+      "label": "Cron-server",
+      "type": "shell",
+      "command": "cd cron/ && node cronServer.js",
+      "presentation": {
+        "group": "Servers"
+      }
+    }
+  ]
+}
