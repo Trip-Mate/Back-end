@@ -3,10 +3,13 @@ const bcrypt = require('bcryptjs');
 const gravatar = require('gravatar');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
+const crypto = require('crypto');
 const config = require('../../config/app');
 const User = require('../../models/User');
 const auth = require('../../middleware/auth');
 const Trip = require('../../models/Trip');
+const Mailgun = require('mailgun-js');
+const passwordResetEmail = require('../../templates/passwordResetEmail');
 
 // @route   POST /users
 // @desc    Register user
@@ -25,6 +28,8 @@ router.post(
   async (req, res) => {
     const { name, email, password } = req.body;
     const errors = validationResult(req);
+   
+    email = email.toLowerCase();
 
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -110,16 +115,78 @@ router.delete('/', auth, async (req, res) => {
 
 router.post('/forgot', async (req, res) => {
   try {
-    const { email } = req.body.user;
+    // Get the email sent from the front-end
+    let { email } = req.body.user;
+    email = email.toLowerCase();
+
+    // Look for the user with the corresponding email
     const user = await User.findOne({ email }).select('-password');
 
+    // If user exists
     if (user) {
-      console.log(user)
+      // Generate password reset token and add expiry date
+      const resetPasswordToken = await createRandomToken();
+      const resetPasswordExpires = new Date().addHours(1);
+
+      // Creating a reset link to send in the email 
+      const resetLink = `127.0.0.1:3000/reset/${resetPasswordToken}`;
+
+      const userWithToken = await User.findOneAndUpdate(
+				{ email },
+				{
+					resetPasswordToken,
+					resetPasswordExpires,
+				}
+      );
+      // Checking if everything has been saved correctly
+      if (!userWithToken) {
+        return res
+					.status(500)
+					.send(
+						'Something went wrong, if this issue persist please contact support'
+					);
+      }
+
+      // Mailgun sending functions
+      let mailgun = new Mailgun({ apiKey: config.mailgun.apiKey, domain: config.mailgun.testDomain });
+      // Prepare the data expected by mailgun
+      let data = {
+				//Specify email data
+				from: config.mailgun.fromEmail,
+				//The email to contact
+				to: email,
+				//Subject and text data
+				subject: 'Trip Mate - Password Reset',
+				html: passwordResetEmail.body(user, resetLink),
+      };
+      // Send the data.
+			mailgun.messages().send(data, function (error) {
+        if (error) {
+          console.log(error);
+					return res.status(500).send('server error');
+				} else {
+					return res.status(200).json({
+						msg: 'If your mail is registered we have sent you an email',
+					});
+				}
+			});
     } 
   } catch (error) {
     console.error(error.message);
-    res.status(500).send('server error ')
+    return res.status(500).send('server error ')
   }
 })
+
+// Helper function to create a random token. Separated it for reusability in the future
+const createRandomToken = async function () {
+  return crypto.randomBytes(20).toString('hex')
+}
+
+// Simple function to add hours to the expires token
+Date.prototype.addHours = function (h) {
+	this.setTime(this.getTime() + h * 60 * 60 * 1000);
+	return this;
+};
+
 
 module.exports = router;
