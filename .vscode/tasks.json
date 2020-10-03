@@ -6,7 +6,6 @@
       "dependsOn": [
         "Front-end server",
         "Back-end server",
-        "Cron-server"
       ],
       "problemMatcher": []
     },
@@ -26,13 +25,5 @@
         "group": "Servers"
       }
     },
-    {
-      "label": "Cron-server",
-      "type": "shell",
-      "command": "cd cron/ && node cronServer.js",
-      "presentation": {
-        "group": "Servers"
-      }
-    }
   ]
 }

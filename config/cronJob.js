@@ -9,8 +9,9 @@ cron.schedule('0 1 * * *', async () => {
     middleware.deleteTrips();
     const date = new Date();
     const formattedDate = date.toLocaleTimeString();
-    console.log(`${formattedDate} - CronJob complete: getRates/deleteTrips !`);
+    console.log(`${formattedDate} - Cron is running: getRates/deleteTrips !`);
   } catch (err) {
     console.log(err);
   }
 });
+  

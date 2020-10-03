@@ -15,4 +15,9 @@ module.exports = {
       ? process.env.CLIENT_URL_PROD
       : process.env.CLIENT_URL_DEV,
   fixerKey: process.env.FIXER_ACCESS_KEY,
+  mailgun: {
+    apiKey: process.env.MAILGUN_API_KEY,
+    testDomain: process.env.TEST_DOMAIN,
+    fromEmail: process.env.FROM_EMAIL,
+  }
 };
