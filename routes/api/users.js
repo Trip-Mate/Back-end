@@ -104,4 +104,22 @@ router.delete('/', auth, async (req, res) => {
   }
 });
 
+// @route   POST /users/forgot
+// @desc    Password Recovery
+// @access  Public
+
+router.post('/forgot', async (req, res) => {
+  try {
+    const { email } = req.body.user;
+    const user = await User.findOne({ email }).select('-password');
+
+    if (user) {
+      console.log(user)
+    } 
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('server error ')
+  }
+})
+
 module.exports = router;
