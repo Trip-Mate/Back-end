@@ -10,103 +10,104 @@ const auth = require('../../middleware/auth');
 const Trip = require('../../models/Trip');
 const Mailgun = require('mailgun-js');
 const passwordResetEmail = require('../../templates/passwordResetEmail');
+const passwordResetSuccess = require('../../templates/passwordResetSuccess');
 
 // @route   POST /users
 // @desc    Register user
 // @access  Public
 //TODO: validation including checking for errors should be middleware module
 router.post(
-  '/',
-  [
-    check('name', 'Name is required').not().isEmpty(),
-    check('email', 'Please include a valid email').isEmail(),
-    check(
-      'password',
-      'Please enter a password with 8 or more characters'
-    ).isLength({ min: 8 }),
-  ],
-  async (req, res) => {
-    const { name, email, password } = req.body;
-    const errors = validationResult(req);
-   
-    email = email.toLowerCase();
+	'/',
+	[
+		check('name', 'Name is required').not().isEmpty(),
+		check('email', 'Please include a valid email').isEmail(),
+		check(
+			'password',
+			'Please enter a password with 8 or more characters'
+		).isLength({ min: 8 }),
+	],
+	async (req, res) => {
+		let { name, email, password } = req.body;
+		const errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+		email = email.toLowerCase();
 
-    try {
-      let user = await User.findOne({ email });
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
 
-      //TODO: this is not needed, email can be set to unique in model.
-      if (user) {
-        return res
-          .status(400)
-          .json({ errors: [{ msg: 'User already exists' }] });
-      }
-      const avatar = gravatar.url(email, {
-        s: '200',
-        r: 'pg',
-        d: 'mm',
-      });
+		try {
+			let user = await User.findOne({ email });
 
-      user = new User({
-        name,
-        email,
-        password,
-        avatar,
-      });
+			//TODO: this is not needed, email can be set to unique in model.
+			if (user) {
+				return res
+					.status(400)
+					.json({ errors: [{ msg: 'User already exists' }] });
+			}
+			const avatar = gravatar.url(email, {
+				s: '200',
+				r: 'pg',
+				d: 'mm',
+			});
 
-      const salt = await bcrypt.genSalt(10);
+			user = new User({
+				name,
+				email,
+				password,
+				avatar,
+			});
 
-      user.password = await bcrypt.hash(password, salt);
+			const salt = await bcrypt.genSalt(10);
 
-      await user.save();
+			user.password = await bcrypt.hash(password, salt);
 
-      const payload = {
-        user: {
-          id: user.id,
-        },
-      };
+			await user.save();
 
-      // TODO: Change expiresIn time to something more reasonable
-      jwt.sign(
-        payload,
-        config.secret,
-        { expiresIn: 360000 },
-        (error, token) => {
-          if (error) throw error;
-          res.json({ token });
-        }
-      );
-    } catch (error) {
-      console.error(error.message);
-      res.status(500).send('server error');
-    }
-  }
+			const payload = {
+				user: {
+					id: user.id,
+				},
+			};
+
+			// TODO: Change expiresIn time to something more reasonable
+			jwt.sign(
+				payload,
+				config.secret,
+				{ expiresIn: 360000 },
+				(error, token) => {
+					if (error) throw error;
+					res.json({ token });
+				}
+			);
+		} catch (error) {
+			console.error(error.message);
+			res.status(500).send('server error');
+		}
+	}
 );
 
 // @route   DELETE /users/
 // @desc    Delete user
 // @access  Private
 router.delete('/', auth, async (req, res) => {
-  try {
-    await User.deleteOne({ _id: req.user.id });
+	try {
+		await User.deleteOne({ _id: req.user.id });
 
-    await Trip.updateMany(
-      { user: { $in: req.user.id } },
-      { $pull: { user: { $in: req.user.id } } }
-    );
-    // 200 OK
-    return res.status(200).send('User has been deleted');
-  } catch (error) {
-    // Checks if the :id passed in is not a valid ObjectId
-    if (error.kind == 'ObjectId') {
-      return res.status(400).json({ msg: "User doesn't exsist" });
-    }
-    console.error(error.message);
-    res.status(500).send('server error');
-  }
+		await Trip.updateMany(
+			{ user: { $in: req.user.id } },
+			{ $pull: { user: { $in: req.user.id } } }
+		);
+		// 200 OK
+		return res.status(200).send('User has been deleted');
+	} catch (error) {
+		// Checks if the :id passed in is not a valid ObjectId
+		if (error.kind == 'ObjectId') {
+			return res.status(400).json({ msg: "User doesn't exsist" });
+		}
+		console.error(error.message);
+		res.status(500).send('server error');
+	}
 });
 
 // @route   POST /users/forgot
@@ -114,43 +115,46 @@ router.delete('/', auth, async (req, res) => {
 // @access  Public
 
 router.post('/forgot', async (req, res) => {
-  try {
-    // Get the email sent from the front-end
-    let { email } = req.body.user;
-    email = email.toLowerCase();
+	try {
+		// Get the email sent from the front-end
+		let { email } = req.body.user;
+		email = email.toLowerCase();
 
-    // Look for the user with the corresponding email
-    const user = await User.findOne({ email }).select('-password');
+		// Look for the user with the corresponding email
+		const user = await User.findOne({ email }).select('-password');
 
-    // If user exists
-    if (user) {
-      // Generate password reset token and add expiry date
-      const resetPasswordToken = await createRandomToken();
-      const resetPasswordExpires = new Date().addHours(1);
+		// If user exists
+		if (user) {
+			// Generate password reset token and add expiry date
+			const resetPasswordToken = await createRandomToken();
+			const resetPasswordExpires = new Date().addHours(1);
 
-      // Creating a reset link to send in the email 
-      const resetLink = `127.0.0.1:3000/reset/${resetPasswordToken}`;
+			// Creating a reset link to send in the email
+			const resetLink = `http://localhost:3000/reset/${resetPasswordToken}`;
 
-      const userWithToken = await User.findOneAndUpdate(
+			const userWithToken = await User.findOneAndUpdate(
 				{ email },
 				{
 					resetPasswordToken,
 					resetPasswordExpires,
 				}
-      );
-      // Checking if everything has been saved correctly
-      if (!userWithToken) {
-        return res
+			);
+			// Checking if everything has been saved correctly
+			if (!userWithToken) {
+				return res
 					.status(500)
 					.send(
 						'Something went wrong, if this issue persist please contact support'
 					);
-      }
+			}
 
-      // Mailgun sending functions
-      let mailgun = new Mailgun({ apiKey: config.mailgun.apiKey, domain: config.mailgun.testDomain });
-      // Prepare the data expected by mailgun
-      let data = {
+			// Mailgun sending functions
+			let mailgun = new Mailgun({
+				apiKey: config.mailgun.apiKey,
+				domain: config.mailgun.testDomain,
+			});
+			// Prepare the data expected by mailgun
+			let data = {
 				//Specify email data
 				from: config.mailgun.fromEmail,
 				//The email to contact
@@ -158,11 +162,11 @@ router.post('/forgot', async (req, res) => {
 				//Subject and text data
 				subject: 'Trip Mate - Password Reset',
 				html: passwordResetEmail.body(user, resetLink),
-      };
-      // Send the data.
+			};
+			// Send the data
 			mailgun.messages().send(data, function (error) {
-        if (error) {
-          console.log(error);
+				if (error) {
+					console.log(error);
 					return res.status(500).send('server error');
 				} else {
 					return res.status(200).json({
@@ -170,23 +174,91 @@ router.post('/forgot', async (req, res) => {
 					});
 				}
 			});
-    } 
-  } catch (error) {
-    console.error(error.message);
-    return res.status(500).send('server error ')
-  }
-})
+		}
+		// return res.status(200).send('Success')
+	} catch (error) {
+		console.error(error.message);
+		return res.status(500).send('server error ');
+	}
+});
+
+// @route   POST /users/reset
+// @desc    Password Reset
+// @access  Public
+router.post('/reset', async (req, res) => {
+  let { resetPasswordToken, password } = req.body;
+  
+	try {
+    let updatedUser = await User.findOne({ resetPasswordToken });
+    
+    if (updatedUser) {
+      
+			if (updatedUser.resetPasswordExpires > Date.now()) {
+				const salt = await bcrypt.genSalt(10);
+
+				updatedUser.password = await bcrypt.hash(password, salt);
+				await updatedUser.save();
+
+				const payload = {
+					user: {
+						id: updatedUser.id,
+					},
+				};
+
+				// TODO: Change expiresIn time to something more reasonable
+				jwt.sign(
+					payload,
+					config.secret,
+					{ expiresIn: 360000 },
+					(error, token) => {
+						if (error) throw error;
+						return res.json({ token });
+					}
+				);
+
+				// Mailgun sending functions
+				let mailgun = new Mailgun({
+					apiKey: config.mailgun.apiKey,
+					domain: config.mailgun.testDomain,
+				});
+				// Prepare the data expected by mailgun
+				let data = {
+					//Specify email data
+					from: config.mailgun.fromEmail,
+					//The email to contact
+					to: updatedUser.email,
+					//Subject and text data
+					subject: 'Trip Mate - Password Reset Success',
+					html: passwordResetSuccess.body(updatedUser.name),
+				};
+				// Send the data
+				mailgun.messages().send(data, function (error) {
+					if (error) {
+						console.log(error);
+						return res.status(500).send('server error');
+					} else {
+						return null
+					}
+				});
+      } else {
+        res.send('token expired')
+      }
+		}
+	} catch (error) {
+		console.error(error.message);
+		return res.status(500).send('server error ');
+	}
+});
 
 // Helper function to create a random token. Separated it for reusability in the future
 const createRandomToken = async function () {
-  return crypto.randomBytes(20).toString('hex')
-}
+	return crypto.randomBytes(20).toString('hex');
+};
 
 // Simple function to add hours to the expires token
 Date.prototype.addHours = function (h) {
 	this.setTime(this.getTime() + h * 60 * 60 * 1000);
 	return this;
 };
-
 
 module.exports = router;
