@@ -19,5 +19,9 @@ module.exports = {
     apiKey: process.env.MAILGUN_API_KEY,
     testDomain: process.env.TEST_DOMAIN,
     fromEmail: process.env.FROM_EMAIL,
+  },
+  unsplash: {
+    accessKey: process.env.UNSPLASH_ACCESS_KEY,
+    secretKey: process.env.UNSPLASH_SECRET_KEY,
   }
-};
+}
