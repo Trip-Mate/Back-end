@@ -60,7 +60,7 @@ exports.registerUser = async (req, res) => {
 		// TODO: Change expiresIn time to something more reasonable
 		jwt.sign(payload, config.secret, { expiresIn: 360000 }, (error, token) => {
 			if (error) throw error;
-			res.json({ token });
+			return res.json({ token, user });
 		});
 	} catch (error) {
 		console.error(error.message);

@@ -81,7 +81,8 @@ exports.authUser = async (req, res) => {
             (error, token) => {
                 if (error) throw error;
                 res.json({
-                    token
+                    token,
+                    user
                 });
             }
         );
