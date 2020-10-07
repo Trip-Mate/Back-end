@@ -23,12 +23,7 @@ const tripSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  countries: [
-  	{
-  		type: mongoose.Schema.Types.ObjectId,
-  		ref: 'Country',
-  	},
-  ],
+  countries: [],
   baseCurrency: {
     type: String,
     required: true,

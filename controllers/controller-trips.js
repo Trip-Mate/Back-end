@@ -157,8 +157,9 @@ const addAdditionalCurrencies = async (countries, baseCurrency) => {
 
 	try {
 		// List the countries that has in the trip to get the currencies later on
-		const countryList = await Countries.find({ _id: { $in: countries } });
+		const countryList = await Countries.find({ name: { $in: countries } });
 
+		console.log(countryList)
 		for (let i = 0; countryList.length > i; i++) {
 			countryList[i].currency.forEach((currency) => {
 				// Checks if the currency is already in the array or it's the base currency
@@ -168,6 +169,7 @@ const addAdditionalCurrencies = async (countries, baseCurrency) => {
 				currencies.push(currency);
 			});
 		}
+		console.log(currencies)
 		return currencies;
 	} catch (err) {
 		console.error(err);
@@ -178,7 +180,7 @@ const addAdditionalCurrencies = async (countries, baseCurrency) => {
 const addPhotoURL = async (countries) => {
   try {
 		// Get all the countries with given IDs
-		const countryList = await Countries.find({ _id: { $in: countries } });
+		const countryList = await Countries.find({ name: { $in: countries } });
 		// Get random photo from unsplash with the first country name from the trip
 		const URL = await unsplash.photos
 			.getRandomPhoto({
@@ -191,6 +193,7 @@ const addPhotoURL = async (countries) => {
 			.then((json) => {
 				// Pick the small size image
 				const URL = json.urls.small;
+				console.log(URL)
 				return URL;
 			});
 		return URL;

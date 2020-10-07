@@ -23,7 +23,8 @@ const checkOnTripFields = [
 //////////////
 /// ROUTES ///
 //////////////
-router.post('/', checkOnTripFields, createTrip);
+// TODO: Put authentication back after new trip function is complete
+router.post('/', /*checkOnTripFields,*/ createTrip);
 router.get('/', auth, getCurrentTrip);
 router.get('/:id', auth, getTripById);
 router.delete('/:id', auth, deleteTrip);
