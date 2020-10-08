@@ -47,7 +47,7 @@ exports.createTrip = async (req, res) => {
 
         // Preapring the trip
         const tripFields = {};
-        tripFields.user = user._id;
+        tripFields.user = user;
         tripFields.title = title;
         tripFields.from = from;
         tripFields.to = to;
@@ -55,7 +55,7 @@ exports.createTrip = async (req, res) => {
         tripFields.baseCurrency = baseCurrency;
         tripFields.additionalCurrencies = additionalCurrencies;
         tripFields.backgroundImage = backgroundImage;
-        if (budget) tripFields.budget = budget;
+        tripFields.budget = budget;
 
         // Get user based on user id
     const newUser = await User.findById(tripFields.user);
@@ -159,7 +159,6 @@ const addAdditionalCurrencies = async (countries, baseCurrency) => {
 		// List the countries that has in the trip to get the currencies later on
 		const countryList = await Countries.find({ name: { $in: countries } });
 
-		console.log(countryList)
 		for (let i = 0; countryList.length > i; i++) {
 			countryList[i].currency.forEach((currency) => {
 				// Checks if the currency is already in the array or it's the base currency
@@ -169,7 +168,6 @@ const addAdditionalCurrencies = async (countries, baseCurrency) => {
 				currencies.push(currency);
 			});
 		}
-		console.log(currencies)
 		return currencies;
 	} catch (err) {
 		console.error(err);
@@ -193,7 +191,6 @@ const addPhotoURL = async (countries) => {
 			.then((json) => {
 				// Pick the small size image
 				const URL = json.urls.small;
-				console.log(URL)
 				return URL;
 			});
 		return URL;
