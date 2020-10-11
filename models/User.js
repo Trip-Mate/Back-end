@@ -34,10 +34,14 @@ const userSchema = new mongoose.Schema({
 		type: Date,
 		default: Date.now(),
 	},
-	// emailVerified: {
-	// 	type: Boolean,
-	// 	default: false,
-	// },
+	emailVerified: {
+		type: Boolean,
+		default: false,
+	},
+	baseCurrency: {
+		type: String,
+		defaul: '',
+	}
 });
 
 const User = mongoose.model('User', userSchema);

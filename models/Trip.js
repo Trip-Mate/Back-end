@@ -48,6 +48,10 @@ const tripSchema = new mongoose.Schema({
   backgroundImage: {
     type: String,
   },
+  duration: {
+    type: Number,
+    required: true,
+  }
 });
 
 const Trip = mongoose.model('Trip', tripSchema);

@@ -42,7 +42,8 @@ exports.createTrip = async (req, res) => {
             to,
             countries,
             baseCurrency,
-            budget,
+					budget,
+						duration
         } = req.body;
 
 			console.log(user)
@@ -58,7 +59,8 @@ exports.createTrip = async (req, res) => {
         tripFields.baseCurrency = baseCurrency;
         tripFields.additionalCurrencies = additionalCurrencies;
         tripFields.backgroundImage = backgroundImage;
-        tripFields.budget = budget;
+			tripFields.budget = budget;
+			tripFields.duration = duration;
 
         // Get user based on user id
     const newUser = await User.findById(tripFields.user._id);
@@ -88,7 +90,7 @@ exports.createTrip = async (req, res) => {
 // @access  Private
 exports.getCurrentTrip = async (req, res) => {
 	try {
-		const trips = await User.findById(req.user.id).populate('trips').select('trips');
+		const trips = await User.findById(req.user.id).populate('trips').select('-password');
 		if (!trips) {
 			return res.status(400).json({ msg: 'There are no trips to show' });
 		}
