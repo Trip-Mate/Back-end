@@ -3,8 +3,19 @@ const mongoose = require('mongoose');
 const tripSchema = new mongoose.Schema({
   user: [
     {
+      id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+      },
+      isVerified: {
+        type: Boolean,
+        default: false
+      },
+      isOwner: {
+        type: Boolean,
+        required: true,
+        default: false,
+      }
     },
   ],
   createdAt: {

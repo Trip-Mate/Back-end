@@ -45,9 +45,12 @@ exports.createTrip = async (req, res) => {
             budget,
         } = req.body;
 
+			console.log(user)
         // Preapring the trip
-        const tripFields = {};
-        tripFields.user = user;
+			const tripFields = {user: {}};
+				tripFields.user._id = user;
+				tripFields.user.isVerified = true;
+				tripFields.user.isOwner = true;
         tripFields.title = title;
         tripFields.from = from;
         tripFields.to = to;
@@ -58,7 +61,7 @@ exports.createTrip = async (req, res) => {
         tripFields.budget = budget;
 
         // Get user based on user id
-    const newUser = await User.findById(tripFields.user);
+    const newUser = await User.findById(tripFields.user._id);
 
         if (newUser) {
             // Create new trip and add trip ID to user
@@ -85,7 +88,7 @@ exports.createTrip = async (req, res) => {
 // @access  Private
 exports.getCurrentTrip = async (req, res) => {
 	try {
-		const trips = await User.findById(req.user.id).populate('trips');
+		const trips = await User.findById(req.user.id).populate('trips').select('trips');
 		if (!trips) {
 			return res.status(400).json({ msg: 'There are no trips to show' });
 		}
