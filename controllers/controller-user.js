@@ -68,16 +68,45 @@ exports.registerUser = async (req, res) => {
 	}
 };
 
-// @route   DELETE /users/
+// @route   POST /users/delete
 // @desc    Delete user
 // @access  Private
 exports.deleteUser = async (req, res) => {
+	// console.log(req.body)
+	// console.log('req.body: ', req.body)
+	let { id, password } = req.body 
+
 	try {
-		await User.deleteOne({ _id: req.user.id });
+		
+		let user = await User.findById(id);
+		// console.log('USER: ', user)
+
+		if (!user) {
+			return res.status(400).json({
+				errors: [
+					{
+						msg: 'User doesn\'t exsist',
+					},
+				],
+			});
+		}
+
+		const isMatch = await bcrypt.compare(password, user.password);
+
+		if (!isMatch) {
+			return res.status(400).json({
+				errors: [
+					{
+						msg: 'Invalid password',
+					},
+				],
+			});
+		}
+		await User.deleteOne({ _id: id });
 
 		await Trip.updateMany(
-			{ user: { $in: req.user.id } },
-			{ $pull: { user: { $in: req.user.id } } }
+			{ user: { $in: id } },
+			{ $pull: { user: { $in: id } } }
 		);
 		// 200 OK
 		return res.status(200).send('User has been deleted');

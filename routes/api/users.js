@@ -23,7 +23,7 @@ const checkOnRegister = [
 /// ROUTES ///
 //////////////
 router.post('/', checkOnRegister, registerUser);
-router.delete('/', auth, deleteUser);
+router.post('/delete', auth, deleteUser);
 router.post('/forgot', forgotPassword);
 router.post('/reset', resetPassword);
 
