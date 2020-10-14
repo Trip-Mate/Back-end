@@ -3,7 +3,7 @@ const middleware = require('../middleware/cron');
 
 console.log('CronJob initialized');
 
-cron.schedule('0 1 * * *', async () => {
+cron.schedule('40 22 * * *', async () => {
   try {
     middleware.getRates();
     middleware.deleteTrips();
@@ -14,4 +14,3 @@ cron.schedule('0 1 * * *', async () => {
     console.log(err);
   }
 });
-  
