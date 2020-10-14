@@ -13,9 +13,7 @@ module.exports = (req, res, next) => {
 
   try {
     const decoded = jwt.decode(token, config.secret);
-    req.body = { ...decoded.user, ...req.body.user }
-
-    console.log( 'DECODED: ', req.body)
+    req.user = { ...decoded.user, ...req.body.user }
     next();
   } catch (error) {
     res.status(401).json({ msg: 'Token is not valid' });

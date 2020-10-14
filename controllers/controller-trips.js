@@ -84,6 +84,7 @@ exports.createTrip = async (req, res) => {
 // @desc    Get current users trips
 // @access  Private
 exports.getCurrentTrip = async (req, res) => {
+	console.log(req.user)
 	try {
 		const trips = await User.findById(req.user.id).populate('trips');
 		if (!trips) {

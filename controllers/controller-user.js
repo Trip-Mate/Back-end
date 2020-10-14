@@ -74,7 +74,7 @@ exports.registerUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
 	// console.log(req.body)
 	// console.log('req.body: ', req.body)
-	let { id, password } = req.body 
+	let { id, password } = req.user 
 
 	try {
 		
