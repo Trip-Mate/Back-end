@@ -6,6 +6,7 @@ const {
 	deleteUser,
 	forgotPassword,
 	resetPassword,
+	updateUser
 } = require('../../controllers/controller-user');
 
 // Validation
@@ -26,6 +27,7 @@ router.post('/', checkOnRegister, registerUser);
 router.post('/delete', auth, deleteUser);
 router.post('/forgot', forgotPassword);
 router.post('/reset', resetPassword);
+router.patch('/:user_id', updateUser);
 
 module.exports = router;
 

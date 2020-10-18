@@ -34,6 +34,9 @@ const userSchema = new mongoose.Schema({
 		type: Date,
 		default: Date.now(),
 	},
+	baseCurrency: {
+		type: String
+	}
 	// emailVerified: {
 	// 	type: Boolean,
 	// 	default: false,

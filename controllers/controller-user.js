@@ -68,6 +68,33 @@ exports.registerUser = async (req, res) => {
 	}
 };
 
+// @route   PATCH /users/:user_id
+// @desc    Update user
+// @access  Private
+exports.updateUser = async (req, res) => {
+	try {
+		let user = await User.findById(req.params.user_id);
+		if (!user) {
+			return res.status(400).json({
+				errors: [
+					{
+						msg: 'User doesn\'t exsist',
+					},
+				],
+			});
+		}
+		User.findOneAndUpdate({_id: req.params.user_id}, {...req.body}, (err, user) => {
+			if (err) {
+				console.log(err);
+				return res.status(500).send("Internal server error")
+			}
+			return res.status(200).send(user);
+		})
+	} catch (e) {
+		return res.status(500).send("Internal server error")
+	}
+}
+
 // @route   POST /users/delete
 // @desc    Delete user
 // @access  Private
