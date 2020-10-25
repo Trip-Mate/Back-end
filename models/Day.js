@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 
 const daySchema = new mongoose.Schema({
-  events: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Event',
-  },
+  events: [
+    {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Event',
+		},
+  ],
   createdAt: {
     type: Date,
     default: Date.now(),

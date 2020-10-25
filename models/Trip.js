@@ -37,16 +37,15 @@ const tripSchema = new mongoose.Schema({
 	backgroundImage: {
 		type: String,
 	},
-	schedule: {
-		days: {
+	duration : {
+		type: Number,
+	},
+	days: [
+		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Day',
 		},
-		events: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: 'Event',
-		},
-	},
+	]
 });
 
 const Trip = mongoose.model('Trip', tripSchema);

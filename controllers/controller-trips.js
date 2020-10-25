@@ -33,7 +33,7 @@ exports.createTrip = async (req, res) => {
         const additionalCurrencies = await addAdditionalCurrencies(
             req.body.countries,
             req.body.baseCurrency
-        );
+		);
 
         let {
             user,
@@ -42,10 +42,13 @@ exports.createTrip = async (req, res) => {
             to,
             countries,
             baseCurrency,
-            budget,
-        } = req.body;
+			budget,
+			duration,
+		} = req.body;
 
-        // Preapring the trip
+		console.log('Duration', duration);
+
+        // Preparing the trip
         const tripFields = {};
         tripFields.user = user;
         tripFields.title = title;
@@ -55,15 +58,17 @@ exports.createTrip = async (req, res) => {
         tripFields.baseCurrency = baseCurrency;
         tripFields.additionalCurrencies = additionalCurrencies;
         tripFields.backgroundImage = backgroundImage;
-        tripFields.budget = budget;
+		tripFields.budget = budget;
+		tripFields.duration = duration;
 
         // Get user based on user id
-    const newUser = await User.findById(tripFields.user);
+		const newUser = await User.findById(tripFields.user);
 
         if (newUser) {
+
             // Create new trip and add trip ID to user
             const trip = new Trip(tripFields);
-            newUser.trips.push(trip.id);
+			newUser.trips.push(trip.id);
 
             await newUser.save();
             await trip.save();
@@ -84,7 +89,6 @@ exports.createTrip = async (req, res) => {
 // @desc    Get current users trips
 // @access  Private
 exports.getCurrentTrip = async (req, res) => {
-	console.log(req.user)
 	try {
 		const trips = await User.findById(req.user.id).populate('trips');
 		if (!trips) {
@@ -144,7 +148,7 @@ exports.deleteTrip = async (req, res) => {
 	} catch (error) {
 		// Checks if the :id passed in is not a valid ObjectId
 		if (error.kind == 'ObjectId') {
-			return res.status(400).json({ msg: "Trip doesn't exsist" });
+			return res.status(400).json({ msg: "Trip doesn't exist" });
 		}
 		console.error(error.message);
 		res.status(500).send('Server error');
