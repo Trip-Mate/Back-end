@@ -34,10 +34,11 @@ exports.createTripDays = async (req, res) => {
         });
         console.log('Updating Trip Data', trip);
 
-        return res.status(200).json(tripDays);
+        return res.status(201).json(trip);
 
 	} catch (error) {
-		console.log('Error creating Days', error.message)
+        console.log('Error creating Days', error.message)
+        res.status(500).send('Something went wrong 😕')
 	}
 };
 
@@ -46,13 +47,15 @@ exports.createTripDays = async (req, res) => {
 // @access  Private
 exports.getTripDays = async (req, res) => {
 	try {
+
         const days = await Trip.findById(req.query.id, 'days').populate('days');
         console.log('Getting Days Data', days);
 
-        res.status(201).json(days);
+        res.status(200).json(days);
         
 	} catch (error) {
-		console.error('Error Getting Days', error.message);
+        console.error('Error Getting Days', error.message);
+        res.status(500).send('Something went wrong 😕')
 	}
 };
 
@@ -64,7 +67,7 @@ const createTripDays = async (numberOfDays, initialDate, initialCountry, daysArr
         return daysArray;
     }
 
-    let day = new Day({ date: initialDate, country: initialCountry, })
+    let day = new Day({ date: initialDate, country: initialCountry, });
     await day.save(function (err) {
         if(err) {
             console.log('Error Saving Day to the Database', err.message)
