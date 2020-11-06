@@ -4,8 +4,10 @@
 	"description": "Travel Mate application",
 	"main": "server.js",
 	"scripts": {
+		"client": "cd ../client && npm start",
 		"start": "node server",
-		"server": "nodemon server"
+		"server": "nodemon server",
+		"dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
 	},
 	"repository": {
 		"type": "git",
