@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const noteSchema = new mongoose.schema({
+const noteSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
@@ -8,6 +8,11 @@ const noteSchema = new mongoose.schema({
   note: {
     type: String,
     required: true,
+  },
+  createdAt: {
+    type: Date,
+    required: true,
+    default: Date.now()
   }
 })
 

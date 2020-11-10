@@ -9,6 +9,10 @@ const {
 	deleteTrip,
 } = require('../../controllers/controller-trips');
 
+const {
+	createNote
+} = require('../../controllers/controller-notes');
+
 // Validation
 const checkOnTripFields = [
 	auth,
@@ -29,5 +33,6 @@ router.get('/', auth, getCurrentTrip);
 
 router.get('/:id', auth, getTripById);
 router.delete('/:id', auth, deleteTrip);
+router.post('/:id/notes', auth, createNote);
 
 module.exports = router;
