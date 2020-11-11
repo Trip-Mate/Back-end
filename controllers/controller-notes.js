@@ -61,3 +61,46 @@ exports.createNote = async (req, res) => {
     return res.status(500).send('Server error');
   }
 }
+
+exports.deleteNote = async (req, res) => {
+	// console.log(req.params)
+	try {
+	
+		let trip = await Trip.findById(req.params.id);
+		await Note.findByIdAndDelete(req.params.noteId)
+
+		// Checking if trip ID is a valid ID
+		if (!trip) {
+			throw {
+				status: 401,
+				message: 'No trip found',
+			};
+		}
+
+		// console.log(trip.notes.length)
+
+		if (trip.notes.length !== 0) {
+			// If the note was assigned to a trip delete note_id from the array
+			await Trip.updateMany(
+				{ notes: { $in: req.params.noteId } },
+				{ $pull: { notes: { $in: req.params.noteId } } }
+			);
+
+			// 200 Deleted
+			return res.status(200).json({
+				status: 200,
+				message: 'Note deleted'
+			});
+		}
+	} catch (error) {
+		if (error.status) {
+			const { status, message } = error;
+			return res.status(status).json({
+				status,
+				message,
+			});
+		}
+
+		return res.status(500).send('Server error');
+	}
+};
