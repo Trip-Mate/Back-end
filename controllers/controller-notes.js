@@ -62,6 +62,38 @@ exports.createNote = async (req, res) => {
   }
 }
 
+exports.updateNote = async (req, res) => {
+	// console.log(req.body)
+	try {
+		const note = await Note.findByIdAndUpdate({ _id: req.params.noteId }, { title:req.body.title, note: req.body.note })
+
+		if (!note) {
+			throw {
+				status: 404, 
+				message: 'No note found'
+			}
+		}
+
+		return res.status(200).json({
+			status: 200,
+			message: "Note updated successfully",
+			note: req.body
+		})
+
+	} catch (error) {
+		
+		if (error.status) {
+			const { status, message } = error;
+			return res.status(status).json({
+				status,
+				message,
+			});
+		}
+
+		return res.status(500).send('Server error');
+	}
+}
+
 exports.deleteNote = async (req, res) => {
 	// console.log(req.params)
 	try {

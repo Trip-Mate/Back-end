@@ -11,6 +11,7 @@ const {
 
 const {
 	createNote,
+	updateNote,
 	deleteNote
 } = require('../../controllers/controller-notes');
 
@@ -36,6 +37,7 @@ router.get('/:id', auth, getTripById);
 router.delete('/:id', auth, deleteTrip);
 
 router.post('/:id/notes', auth, createNote);
+router.patch('/:id/notes/:noteId', auth, updateNote)
 router.delete('/:id/notes/:noteId', auth, deleteNote)
 
 module.exports = router;
