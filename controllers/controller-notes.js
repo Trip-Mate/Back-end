@@ -44,6 +44,7 @@ exports.createNote = async (req, res) => {
 
 		// 201 Created
 		return res.status(201).json({
+			status: 201,
 			message: 'Note created and assigned to trip',
 			note,
     });
