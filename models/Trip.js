@@ -45,6 +45,12 @@ const tripSchema = new mongoose.Schema({
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Day',
 		},
+	],
+	notes: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Note'
+		}
 	]
 });
 
