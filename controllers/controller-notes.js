@@ -18,18 +18,19 @@ const Trip = require('../models/Trip');
  */
 exports.createNote = async (req, res) => {
   try {
-		let { note } = req.body;
-		let trip = await Trip.findById(req.params.id);
+		let note = req.body;
 
-    // Checking note fields if they are not empty
+		// Checking note fields if they are not empty
 		if (!note.title || !note.note) {
 			throw {
 				status: 401,
 				message: 'Missing note fields',
 			};
-    }
-    
-    // Checking if trip ID is a valid ID
+		}
+
+		let trip = await Trip.findById(req.params.id);
+
+		// Checking if trip ID is a valid ID
 		if (!trip) {
 			throw {
 				status: 401,
@@ -37,23 +38,33 @@ exports.createNote = async (req, res) => {
 			};
 		}
 
-    // Creating a new note
-		const newNote = new Note({ ...note });
+		const isValidUser = trip.user.find((user) => {
+			return user == req.user.id;
+		});
+		if (isValidUser) {
+			// Creating a new note
+			const newNote = new Note({ ...note });
 
-    // Adding not to the trip
-		trip.notes.push(newNote._id);
+			// Adding not to the trip
+			trip.notes.push(newNote._id);
 
-    // Saving note and updated trip
-		trip.save();
-		newNote.save();
+			// Saving note and updated trip
+			trip.save();
+			newNote.save();
 
-		// 201 Created
-		return res.status(201).json({
-			status: 201,
-			message: 'Note created and assigned to trip',
-			note,
-    });
-    
+			// 201 Created
+			return res.status(201).json({
+				status: 201,
+				message: 'Note created and assigned to trip',
+				note,
+			});
+		}
+
+		throw {
+			status: 404,
+			message: 'Access denied'
+		}
+
 	} catch (error) {
 
     if (error.status) {
@@ -123,7 +134,7 @@ exports.getNotes = async (req, res) => {
  * @access Private
  */
 exports.updateNote = async (req, res) => {
-	// console.log(req.body)
+	
 	try {
 		const note = await Note.findByIdAndUpdate({ _id: req.params.noteId }, { title:req.body.title, note: req.body.note })
 
@@ -169,8 +180,9 @@ exports.deleteNote = async (req, res) => {
 	// console.log(req.params)
 	try {
 	
-		let trip = await Trip.findById(req.params.id);
+		
 		await Note.findByIdAndDelete(req.params.noteId)
+		let trip = await Trip.findById(req.params.id);
 
 		// Checking if trip ID is a valid ID
 		if (!trip) {
